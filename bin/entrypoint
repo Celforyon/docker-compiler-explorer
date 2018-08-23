@@ -1,0 +1,22 @@
+#!/bin/bash
+
+echo "####################"
+
+[ -z "${PUID}" ] && PUID=1000
+[ -z "${PGID}" ] && PGID=1000
+
+echo "#### Setting user to (${PUID}:${GUID})"
+usermod -u "${PUID}" user
+groupmod -g "${PGID}" user
+
+echo "#### Populating mounted directories"
+[ -z "$(ls -A /ce/docs)" ] && cp -rf /orig_ce/docs/* /ce/docs
+[ -z "$(ls -A /ce/config)" ] && cp -rf /orig_ce/config/* /ce/config
+[ -z "$(ls -A /ce/examples)" ] && cp -rf /orig_ce/examples/* /ce/examples
+[ -z "$(ls -A /compiler-explorer/lib)" ] && cp -rf /orig_ce/lib/* /compiler-explorer/lib
+
+echo "#### Giving ownership to user"
+chown -R user: /ce/config /ce/examples /compiler-explorer/lib
+
+echo "#### Start Compiler Explorer"
+supervisord -c /etc/supervisor/conf.d/compiler-explorer.conf

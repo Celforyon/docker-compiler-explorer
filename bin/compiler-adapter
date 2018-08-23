@@ -1,0 +1,75 @@
+#!/bin/bash
+
+compiler=$(echo $0|/usr/bin/cut -d'.' -f2-)
+
+if [ "$1" == "--version" ]; then
+	ver=$(eval "${compiler} 2>/dev/null --version")
+	if [ $? -ne 0 ]; then
+		echo "${compiler}"
+	else
+		echo "${ver}"
+	fi
+	exit 0
+fi
+
+function escape() {
+	local data size out i c
+	data=$*
+	size=${#data}
+	out=
+
+	i=0
+	while [ ${i} -lt ${size} ]; do
+		c=${data:${i}:1}
+		if [ ${c} = '\' ]; then
+			i=$((i+1))
+			if [ ${i} -lt ${size} ]; then
+			 	c=${data:${i}:1}
+				if [ "${c}" = 'n' ]; then
+					echo "${out}"
+					out=
+				else
+					out="${out}\\${c}"
+				fi
+			fi
+		else
+			out="${out}${c}"
+		fi
+
+		i=$((i+1))
+	done
+
+	echo -n "${out}"
+}
+
+out=$3
+src=${@:$#}
+other=${@:5:$#-5}
+
+input=$(/bin/mktemp)
+args=
+sep=
+isarg=1
+for arg in ${other}; do
+	if [ "${arg}" = "---" ]; then
+		isarg=0
+	elif [ "${isarg}" = "1" ]; then
+		args="${args} ${arg}"
+	else
+		echo>>${input} -n "${sep}"
+		escape>>${input} "${arg}"
+		sep=' '
+	fi
+done
+
+echo "===== args: ${args}"
+echo "===== input:"
+/bin/cat ${input}
+echo
+echo "============"
+
+program="${compiler}<\"${input}\" >>\"${out}\" ${args} \"${src}\""
+
+eval "timeout 5 ${program}"
+
+/bin/rm ${input}

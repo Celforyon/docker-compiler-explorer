@@ -1,4 +1,4 @@
-FROM celforyon/nodejs:8
+FROM celforyon/compiler-explorer-base
 
 LABEL maintainer="Alexis Pereda <alexis@pereda.fr>"
 LABEL version="0.1"
@@ -6,24 +6,39 @@ LABEL description="Docker for godbolt compiler explorer"
 
 RUN DEBIAN_FRONTEND=noninteractive apt update \
 	&& apt install --no-install-recommends --no-install-suggests -y \
-		git make gcc libc6-dev yarn \
-	&& git clone https://github.com/mattgodbolt/compiler-explorer.git /compiler-explorer \
-	&& cd /compiler-explorer \
-	&& sed -i '/node_modules\/bower\/bin\/bower install/c\\t\/usr\/bin\/nodejs .\/node_modules\/bower\/bin\/bower install --allow-root' /compiler-explorer/Makefile \
-	&& sed -i 's|--exec $(NODE) $(NODE_ARGS) -- ./app.js $(EXTRA_ARGS)||' /compiler-explorer/Makefile \
+		supervisor \
 	&& apt autoremove --purge -y \
 	&& apt autoclean -y \
-	&& rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* \
-	&& useradd -md /home/user user \
-	&& chown -R user:user /compiler-explorer
+	&& rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/*
 
-WORKDIR /compiler-explorer
+RUN mkdir /orig_ce /ce \
+	&& cp -rf /compiler-explorer/docs /orig_ce/docs \
+	&& cp -rf /compiler-explorer/etc/config /orig_ce/config \
+	&& cp -rf /compiler-explorer/examples /orig_ce/examples \
+	&& cp -rf /compiler-explorer/lib /orig_ce/lib \
+	&& rm -rf /compiler-explorer/docs \
+	&& rm -rf /compiler-explorer/etc/config \
+	&& rm -rf /compiler-explorer/examples \
+	&& ln -s /ce/docs /compiler-explorer/docs \
+	&& ln -s /ce/config /compiler-explorer/etc/config \
+	&& ln -s /ce/examples /compiler-explorer/examples
 
-USER user
-RUN	make
-USER root
+COPY ./etc//supervisord.conf /etc/supervisor/conf.d/compiler-explorer.conf
+COPY ./bin/entrypoint /ce/entrypoint
+COPY ./bin/compiler-adapter /ce/compiler-adapter
 
-VOLUME /compiler-explorer/etc/config
+ENV PUID 1000
+ENV PGID 1000
+
+VOLUME /ce/docs
+VOLUME /ce/config
+VOLUME /ce/examples
+VOLUME /compiler-explorer/lib
+
+VOLUME /opt
+VOLUME /usr/local/bin
+VOLUME /usr/local/include
+
 EXPOSE 10240
 
-#ENTRYPOINT [ "/usr/bin/nodejs", "/compiler-explorer/app.js" ]
+ENTRYPOINT [ "/ce/entrypoint" ]
