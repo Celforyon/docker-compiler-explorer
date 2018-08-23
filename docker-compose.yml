@@ -1,0 +1,19 @@
+version: '2'
+services:
+  compiler_explorer:
+    container_name: compiler_explorer
+    image: celforyon/compiler-explorer
+    network_mode: bridge
+    restart: always
+    volumes:
+    - ./volumes/opt:/opt
+    - ./volumes/config:/ce/config
+    - ./volumes/examples:/ce/examples
+    - ./volumes/lib:/compiler-explorer/lib
+    - ./volumes/bin:/usr/local/bin
+    - /etc/localtime:/etc/localtime:ro
+    environment:
+    - "PUID=1000"
+    - "GUID=1000"
+    mem_limit: 512M
+    memswap_limit: 0
