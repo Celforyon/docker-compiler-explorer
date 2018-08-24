@@ -21,12 +21,11 @@ gccxz="${gccfile}"
 cd "${tmpdir}"
 wget "${url}" -O "${gccxz}" || error "cannot download ${url}"
 tar xf "${gccxz}" || error "cannot extract ${gccxz}"
-cd ${gccdir}
 mkdir objdir
 cd objdir
-../configure --prefix=/opt/${gccdir} || error "./configure failed"
+../${gccdir}/configure --prefix=/opt/${gccdir} || error "./configure failed"
 make -j4 || error "make failed"
-make DESTDIR=/opt/${gccdir} install || error "make install failed"
+make install-strip || error "make install failed"
 
 cd /
 rm -rf "${tmpdir}"
