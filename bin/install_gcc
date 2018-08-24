@@ -1,0 +1,32 @@
+#!/bin/bash
+
+error() {
+	echo "[error] $*"
+	exit 1
+}
+
+[ -n "${GCC_MIRROR}" ] || error "missing GCC_MIRROR"
+[ $# -ge 1 ] || error "Usage: $0 GCC_version [ext]"
+
+gcc_version=$1
+gcc_ext=${2:-tar.xz}
+
+gccdir="gcc-${gcc_version}"
+gccfile="${gccdir}.${gcc_ext}"
+url="${GCC_MIRROR}/releases/${gccdir}/${gccfile}"
+
+tmpdir=$(mktemp -d)
+gccxz="${gccfile}"
+
+cd "${tmpdir}"
+wget "${url}" -O "${gccxz}" || error "cannot download ${url}"
+tar xf "${gccxz}" || error "cannot extract ${gccxz}"
+cd ${gccdir}
+mkdir objdir
+cd objdir
+../configure --prefix=/opt/${gccdir} || error "./configure failed"
+make -j4 || error "make failed"
+make DESTDIR=/opt/${gccdir} install || error "make install failed"
+
+cd /
+rm -rf "${tmpdir}"

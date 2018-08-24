@@ -6,7 +6,9 @@ LABEL description="Docker for godbolt compiler explorer"
 
 RUN DEBIAN_FRONTEND=noninteractive apt update \
 	&& apt install --no-install-recommends --no-install-suggests -y \
-		supervisor \
+		g++ gcc-multilib \
+		libgcc1 libgmp-dev libmpc-dev libmpfr-dev \
+		supervisor wget \
 	&& apt autoremove --purge -y \
 	&& apt autoclean -y \
 	&& rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/*
@@ -26,9 +28,12 @@ RUN mkdir /orig_ce /ce \
 COPY ./etc//supervisord.conf /etc/supervisor/conf.d/compiler-explorer.conf
 COPY ./bin/entrypoint /ce/entrypoint
 COPY ./bin/compiler-adapter /ce/compiler-adapter
+COPY ./bin/install_gcc /ce/install_gcc
 
 ENV PUID 1000
 ENV PGID 1000
+
+ENV GCC_MIRROR="ftp://ftp.uvsq.fr/pub/gcc/"
 
 VOLUME /ce/docs
 VOLUME /ce/config
