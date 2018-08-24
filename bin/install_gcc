@@ -24,7 +24,7 @@ tar xf "${gccxz}" || error "cannot extract ${gccxz}"
 mkdir objdir
 cd objdir
 ../${gccdir}/configure --prefix=/opt/${gccdir} || error "./configure failed"
-make -j4 || error "make failed"
+make || error "make failed"
 make install-strip || error "make install failed"
 
 cd /
