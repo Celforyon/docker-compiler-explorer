@@ -5,7 +5,7 @@ echo "####################"
 [ -z "${PUID}" ] && PUID=1000
 [ -z "${PGID}" ] && PGID=1000
 
-echo "#### Setting user to (${PUID}:${GUID})"
+echo "#### Setting user to (${PUID}:${PGID})"
 usermod -u "${PUID}" user
 groupmod -g "${PGID}" user
 
