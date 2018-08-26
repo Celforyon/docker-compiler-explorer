@@ -80,7 +80,7 @@ echo "===== input:"
 echo
 echo "============"
 
-program="${_bin} \"${exe}\" \"${out}\" \"${src}\" \"${input}\" \"<${args}>\""
+program="${_bin} \"${exe}\" \"${out}\" \"${src}\" \"${input}\" \"${args}\""
 
 eval "timeout 10 ${program}"
 ret=$?

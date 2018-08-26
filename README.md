@@ -42,6 +42,12 @@ It then calls `./name` if file exists and is executable, else `name` with these 
 - `<input>` (file containing data after `---`)
 - `<args>` (user arguments before `---`)
 
+It will also call this with the only argument:
+- `--version`
+
+to give Compiler Explorer information about it. If this call fails,
+it will answer Compiler Explorer with `name`.
+
 ### /ce/install_gcc
 
 Arguments:
