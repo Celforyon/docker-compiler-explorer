@@ -27,17 +27,19 @@ Compiler Explorer use a default commandline looking like:
 ```
 which could be impractical for interpreter-like compilers.
 This binary currently does this:
-- isolates `<input>`
-- isolates `<output>`
+- isolates `<src>`
+- isolates `<out>`
 - removes extra flags `-g`, `-o` and `-S`
-- writes a file containing all data after `---` if encountered in commandline
+- writes a file (`<input>`) containing all data after `---` if encountered in commandline
+- detect if required output must be executable (`<exe>`)
 
 You can use it by creating a symbolic link named `compiler.name`, where `name` is an executable in the `PATH`.
 
 It then calls `./name` if file exists and is executable, else `name` with these arguments:
-- `<output>`
-- `<input>`
-- `<data>` (file containing data after `---`)
+- `<exe>` (boolean, 1 if `<out>` must be executable)
+- `<out>`
+- `<src>`
+- `<input>` (file containing data after `---`)
 - `<args>` (user arguments before `---`)
 
 ### /ce/install_gcc

@@ -49,22 +49,28 @@ function escape() {
 }
 
 out=$3
+exe=1
+[ "$4" = "-S" ] && exe=0
+shift $((4 - exe))
+
 src=${@:$#}
-other=${@:5:$#-5}
+other=${@:1:$#-1}
 
 input=$(/bin/mktemp)
 args=
-sep=
+sepi=
+sepa=
 isarg=1
 for arg in ${other}; do
 	if [ "${arg}" = "---" ]; then
 		isarg=0
 	elif [ "${isarg}" = "1" ]; then
-		args="${args} ${arg}"
+		args="${args}${sepa}${arg}"
+		sepa=' '
 	else
-		echo>>${input} -n "${sep}"
+		echo>>${input} -n "${sepi}"
 		escape>>${input} "${arg}"
-		sep=' '
+		sepi=' '
 	fi
 done
 
@@ -74,7 +80,7 @@ echo "===== input:"
 echo
 echo "============"
 
-program="${_bin} \"${out}\" \"${src}\" \"${input}\" \"${args}\""
+program="${_bin} \"${exe}\" \"${out}\" \"${src}\" \"${input}\" \"<${args}>\""
 
 eval "timeout 10 ${program}"
 ret=$?
