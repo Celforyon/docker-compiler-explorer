@@ -1,9 +1,15 @@
 #!/bin/bash
 
-compiler=$(echo $0|/usr/bin/cut -d'.' -f2-)
+compiler=$(echo $(basename "$0")|/usr/bin/cut -d'.' -f2-)
+_dir=$(readlink -f $(dirname "$0"))
+_bin="${_dir}/${compiler}"
+
+if [ ! -f "${_bin}" ] || [ ! -x "${_bin}" ]; then
+	_bin="${compiler}"
+fi
 
 if [ "$1" == "--version" ]; then
-	ver=$(eval "${compiler} 2>/dev/null --version")
+	ver=$(eval "${_bin} 2>/dev/null --version")
 	if [ $? -ne 0 ]; then
 		echo "${compiler}"
 	else
@@ -24,7 +30,7 @@ function escape() {
 		if [ ${c} = '\' ]; then
 			i=$((i+1))
 			if [ ${i} -lt ${size} ]; then
-			 	c=${data:${i}:1}
+				c=${data:${i}:1}
 				if [ "${c}" = 'n' ]; then
 					echo "${out}"
 					out=
@@ -68,8 +74,11 @@ echo "===== input:"
 echo
 echo "============"
 
-program="${compiler}<\"${input}\" >>\"${out}\" ${args} \"${src}\""
+program="${_bin} \"${out}\" \"${src}\" \"${input}\" \"${args}\""
 
-eval "timeout 5 ${program}"
+eval "timeout 10 ${program}"
+ret=$?
 
 /bin/rm ${input}
+
+exit "${ret}"
