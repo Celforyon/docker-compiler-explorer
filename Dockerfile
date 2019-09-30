@@ -1,7 +1,7 @@
 FROM celforyon/compiler-explorer-base
 
 LABEL maintainer="Alexis Pereda <alexis@pereda.fr>"
-LABEL version="0.3.1"
+LABEL version="0.4"
 LABEL description="Docker for godbolt compiler explorer"
 
 RUN DEBIAN_FRONTEND=noninteractive apt update \
