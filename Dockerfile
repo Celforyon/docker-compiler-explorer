@@ -8,7 +8,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update \
 	&& apt install --no-install-recommends --no-install-suggests -y \
 		g++ gcc-multilib \
 		libgcc1 libgmp-dev libmpc-dev libmpfr-dev \
-		ncurses-dev procps supervisor wget zip \
+		ncurses-dev procps supervisor wget zip xz-utils \
 	&& apt autoremove --purge -y \
 	&& apt autoclean -y \
 	&& rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/*
